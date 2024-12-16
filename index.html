@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Countdown Redirect</title>
+    <title>Обратный отсчёт</title>
     <style>
         body {
             margin: 0;
@@ -11,13 +11,14 @@
             justify-content: center;
             align-items: center;
             height: 100vh;
-            background: linear-gradient(135deg, #1e3c72, #2a5298);\n            font-family: Arial, sans-serif;
-            color: #ffffff;
+            background: #ffffff;
+            font-family: 'Roboto', sans-serif;
+            color: #000000;
             overflow: hidden;
         }
 
         .countdown {
-            font-size: 5rem;
+            font-size: 6rem;
             font-weight: bold;
             text-align: center;
             animation: fadeInOut 1s linear infinite;
@@ -25,7 +26,7 @@
 
         @keyframes fadeInOut {
             0% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.5; transform: scale(1.2); }
+            50% { opacity: 0.8; transform: scale(1.1); }
             100% { opacity: 1; transform: scale(1); }
         }
 
@@ -44,7 +45,7 @@
 <body>
     <div>
         <div class="countdown" id="countdown">10</div>
-        <div class="message" id="message">It seems the application is not installed. Please download and try again.</div>
+        <div class="message" id="message">Кажется, приложение не установлено. Пожалуйста, скачайте и попробуйте снова.</div>
     </div>
 
     <script>
@@ -52,17 +53,20 @@
         const countdownElement = document.getElementById('countdown');
         const messageElement = document.getElementById('message');
 
-        // Функция для редиректа
         function handleRedirect() {
             const params = new URLSearchParams(window.location.search);
             const link = params.get('lnk');
             if (link) {
                 window.location.href = link;
             } else {
-                messageElement.textContent = "Invalid link or parameter is missing.";
+                countdownElement.style.display = 'none';
+                messageElement.textContent = "Некорректная ссылка или отсутствует параметр.";
                 messageElement.classList.add('visible');
             }
         }
+
+        // Попытка редиректа сразу при открытии страницы
+        handleRedirect();
 
         // Обратный отсчёт
         const interval = setInterval(() => {
@@ -73,7 +77,6 @@
                 clearInterval(interval);
                 countdownElement.style.display = 'none';
                 messageElement.classList.add('visible');
-                handleRedirect(); // Попытка редиректа
             }
         }, 1000);
     </script>
