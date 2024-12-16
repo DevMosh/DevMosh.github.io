@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Обратный отсчёт</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
             margin: 0;
@@ -15,12 +16,12 @@
             font-family: 'Roboto', sans-serif;
             color: #000000;
             overflow: hidden;
+            text-align: center;
         }
 
         .countdown {
             font-size: 6rem;
             font-weight: bold;
-            text-align: center;
             animation: fadeInOut 1s linear infinite;
         }
 
@@ -32,8 +33,7 @@
 
         .message {
             display: none;
-            font-size: 2rem;
-            text-align: center;
+            font-size: 1.5rem;
             margin-top: 20px;
         }
 
@@ -43,8 +43,7 @@
 
         .final-message {
             display: none;
-            font-size: 2rem;
-            text-align: center;
+            font-size: 1.5rem;
             margin-top: 20px;
             color: #000000;
         }
@@ -55,10 +54,14 @@
     </style>
 </head>
 <body>
-    <div>
-        <div class="countdown" id="countdown">10</div>
-        <div class="message" id="message">Кажется, приложение не установлено. Пожалуйста, скачайте и попробуйте снова.</div>
-        <div class="final-message" id="final-message">Приятного пользования!</div>
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <div class="countdown" id="countdown">10</div>
+                <div class="message" id="message">Кажется, приложение не установлено. Пожалуйста, скачайте и попробуйте снова.</div>
+                <div class="final-message" id="final-message">Приятного пользования!</div>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -109,5 +112,6 @@
             }
         }, 1000);
     </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
