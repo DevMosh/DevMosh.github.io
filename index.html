@@ -56,8 +56,11 @@
         function handleRedirect() {
             const params = new URLSearchParams(window.location.search);
             const link = params.get('lnk');
+            const hash = window.location.hash; // Получаем хэш из текущего URL
+
             if (link) {
-                window.location.href = link;
+                const fullLink = link + hash; // Добавляем хэш к редиректу
+                window.location.href = fullLink;
             } else {
                 countdownElement.style.display = 'none';
                 messageElement.textContent = "Некорректная ссылка или отсутствует параметр.";
