@@ -15,7 +15,6 @@
             background: #ffffff;
             font-family: 'Roboto', sans-serif;
             color: #000000;
-            overflow: hidden;
             text-align: center;
         }
 
@@ -41,15 +40,13 @@
             display: block;
         }
 
-        .final-message {
+        .device-button {
             display: none;
-            font-size: 1.5rem;
             margin-top: 20px;
-            color: #000000;
         }
 
-        .final-message.visible {
-            display: block;
+        .device-button.visible {
+            display: inline-block;
         }
     </style>
 </head>
@@ -59,6 +56,7 @@
             <div class="col-12">
                 <div class="countdown" id="countdown">10</div>
                 <div class="message" id="message">Кажется, приложение не установлено. Пожалуйста, скачайте и попробуйте снова.</div>
+                <a id="device-button" class="btn btn-primary device-button" href="#" role="button">Скачать приложение</a>
             </div>
         </div>
     </div>
@@ -67,13 +65,28 @@
         let count = 10;
         const countdownElement = document.getElementById('countdown');
         const messageElement = document.getElementById('message');
+        const deviceButtonElement = document.getElementById('device-button');
 
         let redirected = false; // Флаг для проверки редиректа
+
+        function detectDevice() {
+            const userAgent = navigator.userAgent.toLowerCase();
+            if (/iphone|ipad|mac/i.test(userAgent)) {
+                return { type: "apple", url: "https://apps.apple.com/app/v2raytun/id6476628951" };
+            } else if (/android/i.test(userAgent)) {
+                return { type: "android", url: "https://example.com/android" };
+            } else if (/windows/i.test(userAgent)) {
+                return { type: "windows", url: "https://example.com/windows" };
+            } else {
+                return { type: "unknown", url: "#" };
+            }
+        }
 
         function handleRedirect() {
             const params = new URLSearchParams(window.location.search);
             const link = params.get('lnk');
             const hash = window.location.hash; // Получаем хэш из текущего URL
+            const deviceInfo = detectDevice();
 
             if (link) {
                 // Редирект через несколько секунд
@@ -88,8 +101,13 @@
                     if (!redirected) {
                         // Если редирект не произошёл, показываем сообщение о проблеме
                         countdownElement.style.display = 'none';
-                        messageElement.textContent = "Похоже, приложение не установлено. Попробуйте скачать его.";
+                        messageElement.textContent = "Похоже, приложение не установлено.";
                         messageElement.classList.add('visible');
+
+                        // Показываем кнопку для скачивания приложения
+                        deviceButtonElement.href = deviceInfo.url;
+                        deviceButtonElement.textContent = `Скачать приложение для ${deviceInfo.type === 'apple' ? '🍏 Apple' : deviceInfo.type === 'android' ? '🤖 Android' : '🖥 Windows'}`;
+                        deviceButtonElement.classList.add('visible');
                     }
                 }, 5000); // Проверка через 5 секунд
             } else {
