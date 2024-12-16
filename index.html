@@ -68,8 +68,9 @@
         <div class="countdown" id="countdown">10</div>
         <div class="message" id="message" style="display: none;">Похоже, приложение не установлено. Пожалуйста, скачайте его:</div>
         <div class="device-buttons" id="device-buttons">
-            <a class="device-button" href="https://apps.apple.com/app/v2raytun/id6476628951" target="_blank">🍏 Скачать для Apple</a>
-            <a class="device-button" href="https://example.com/android" target="_blank">🤖 Скачать для Android</a>
+            <a class="device-button" href="https://apps.apple.com/app/v2raytun/id6476628951" target="_blank">🍏 Скачать для V2Ray</a>
+            <a class="device-button" href="https://example.com/shadowsocks" target="_blank">🛡 Скачать для Shadowsocks</a>
+            <a class="device-button" href="https://example.com/outline" target="_blank">📡 Скачать для Outline</a>
             <a class="device-button" href="https://example.com/windows" target="_blank">🖥 Скачать для Windows</a>
         </div>
         <div class="success-message" id="success-message">Приятного пользования!</div>
@@ -88,8 +89,9 @@
             const hash = window.location.hash ? window.location.hash.slice(1) : "";
             const searchParams = new URLSearchParams(window.location.search);
             const link = decodeURIComponent(searchParams.get('lnk') || "");
+            const schemes = ["v2raytun://", "streisand://"]; // Поддерживаемые схемы
 
-            if (link && link.startsWith("v2raytun://")) {
+            if (link && schemes.some(scheme => link.startsWith(scheme))) {
                 // Моментальная переадресация
                 window.location.href = link + "#" + hash;
                 redirected = true;
