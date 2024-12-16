@@ -71,7 +71,6 @@
             <a class="device-button" href="https://apps.apple.com/app/v2raytun/id6476628951" target="_blank">🍏 Скачать для V2Ray</a>
             <a class="device-button" href="https://example.com/shadowsocks" target="_blank">🛡 Скачать для Shadowsocks</a>
             <a class="device-button" href="https://example.com/outline" target="_blank">📡 Скачать для Outline</a>
-            <a class="device-button" href="https://example.com/windows" target="_blank">🖥 Скачать для Windows</a>
         </div>
         <div class="success-message" id="success-message">Приятного пользования!</div>
     </div>
@@ -89,24 +88,21 @@
             const hash = window.location.hash ? window.location.hash.slice(1) : "";
             const searchParams = new URLSearchParams(window.location.search);
             const link = decodeURIComponent(searchParams.get('lnk') || "");
-            const schemes = ["v2raytun://", "streisand://"]; // Поддерживаемые схемы
+            const schemes = ["v2raytun://", "shadowsocks://", "outline://"]; // Поддерживаемые схемы
 
             if (link && schemes.some(scheme => link.startsWith(scheme))) {
-                // Моментальная переадресация
+                // Попытка редиректа
                 window.location.href = link + "#" + hash;
-                redirected = true;
-                // Показываем сообщение "Приятного пользования"
-                setTimeout(() => {
-                    countdownElement.style.display = 'none';
-                    successMessageElement.style.display = 'block';
-                }, 500);
-            } else {
-                // Если нет ссылки, ждем 10 секунд и показываем fallback
+
+                // Таймер для проверки, остался ли пользователь на странице
                 setTimeout(() => {
                     if (!redirected) {
                         showFallback();
                     }
-                }, 10000);
+                }, 2000); // Если через 2 секунды пользователь остался на странице
+            } else {
+                // Если ссылка не указана или схема не поддерживается
+                showFallback();
             }
         }
 
@@ -117,7 +113,12 @@
             deviceButtonsElement.style.display = 'block';
         }
 
-        // Запускаем таймер
+        function showSuccessMessage() {
+            countdownElement.style.display = 'none';
+            successMessageElement.style.display = 'block';
+        }
+
+        // Таймер обратного отсчёта
         const interval = setInterval(() => {
             if (redirected) {
                 clearInterval(interval);
@@ -134,7 +135,13 @@
             }
         }, 1000);
 
-        // Запускаем переадресацию
+        // Проверка успешности переадресации
+        window.addEventListener("blur", () => {
+            redirected = true;
+            showSuccessMessage();
+        });
+
+        // Запуск переадресации
         handleRedirect();
     </script>
 </body>
