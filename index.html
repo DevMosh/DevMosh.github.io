@@ -73,13 +73,19 @@
             const hash = window.location.hash; // Получаем хэш из текущего URL
 
             if (link) {
-                const fullLink = link + hash; // Добавляем хэш к редиректу
-                window.location.href = fullLink;
-
-                // Показать сообщение после редиректа
+                // Редирект через несколько секунд
                 setTimeout(() => {
-                    countdownElement.style.display = 'none';
-                    finalMessageElement.classList.add('visible');
+                    const fullLink = link + hash; // Добавляем хэш к редиректу
+                    window.location.href = fullLink;
+
+                    // Проверяем, остался ли пользователь на странице
+                    setTimeout(() => {
+                        if (!document.hidden) {
+                            // Если пользователь остался, показать сообщение о проблеме
+                            messageElement.textContent = "Похоже, приложение не установлено. Попробуйте скачать его.";
+                            messageElement.classList.add('visible');
+                        }
+                    }, 3000); // Проверка через 3 секунды после редиректа
                 }, 2000);
             } else {
                 countdownElement.style.display = 'none';
