@@ -31,114 +31,109 @@
         }
 
         .message {
-            display: none;
             font-size: 1.5rem;
             margin-top: 20px;
         }
 
-        .message.visible {
-            display: block;
+        .device-buttons {
+            margin-top: 20px;
+            display: none;
         }
 
         .device-button {
-            display: none;
-            margin-top: 20px;
+            display: inline-block;
+            margin: 5px;
+            padding: 10px 20px;
+            font-size: 1.2rem;
+            text-decoration: none;
+            color: #fff;
+            background-color: #007bff;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
         }
 
-        .device-button.visible {
-            display: inline-block;
+        .device-button:hover {
+            background-color: #0056b3;
+        }
+
+        .success-message {
+            font-size: 1.5rem;
+            color: green;
+            display: none;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="row">
-            <div class="col-12">
-                <div class="countdown" id="countdown">10</div>
-                <div class="message" id="message">Кажется, приложение не установлено. Пожалуйста, скачайте и попробуйте снова.</div>
-                <a id="device-button" class="btn btn-primary device-button" href="#" role="button">Скачать приложение</a>
-            </div>
+    <div>
+        <div class="countdown" id="countdown">10</div>
+        <div class="message" id="message" style="display: none;">Похоже, приложение не установлено. Пожалуйста, скачайте его:</div>
+        <div class="device-buttons" id="device-buttons">
+            <a class="device-button" href="https://apps.apple.com/app/v2raytun/id6476628951" target="_blank">🍏 Скачать для Apple</a>
+            <a class="device-button" href="https://example.com/android" target="_blank">🤖 Скачать для Android</a>
+            <a class="device-button" href="https://example.com/windows" target="_blank">🖥 Скачать для Windows</a>
         </div>
+        <div class="success-message" id="success-message">Приятного пользования!</div>
     </div>
 
     <script>
         let count = 10;
         const countdownElement = document.getElementById('countdown');
         const messageElement = document.getElementById('message');
-        const deviceButtonElement = document.getElementById('device-button');
+        const deviceButtonsElement = document.getElementById('device-buttons');
+        const successMessageElement = document.getElementById('success-message');
 
-        let redirected = false; // Флаг для проверки редиректа
-
-        function detectDevice() {
-            const userAgent = navigator.userAgent.toLowerCase();
-            if (/iphone|ipad|mac/i.test(userAgent)) {
-                return { type: "apple", url: "https://apps.apple.com/app/v2raytun/id6476628951" };
-            } else if (/android/i.test(userAgent)) {
-                return { type: "android", url: "https://example.com/android" };
-            } else if (/windows/i.test(userAgent)) {
-                return { type: "windows", url: "https://example.com/windows" };
-            } else {
-                return { type: "unknown", url: "#" };
-            }
-        }
+        let redirected = false;
 
         function handleRedirect() {
-            const params = new URLSearchParams(window.location.search);
-            const link = params.get('lnk');
-            const hash = window.location.hash; // Получаем хэш из текущего URL
-            const deviceInfo = detectDevice();
+            const hash = window.location.hash ? window.location.hash.slice(1) : "";
+            const searchParams = new URLSearchParams(window.location.search);
+            const link = decodeURIComponent(searchParams.get('lnk') || "");
 
-            if (link) {
-                // Редирект через несколько секунд
+            if (link && link.startsWith("v2raytun://")) {
+                // Моментальная переадресация
+                window.location.href = link + "#" + hash;
+                redirected = true;
+                // Показываем сообщение "Приятного пользования"
                 setTimeout(() => {
-                    const fullLink = link + hash; // Добавляем хэш к редиректу
-                    window.location.href = fullLink;
-                    redirected = true; // Устанавливаем флаг редиректа
-                }, 2000);
-
-                // Проверяем, остался ли пользователь на странице
+                    countdownElement.style.display = 'none';
+                    successMessageElement.style.display = 'block';
+                }, 500);
+            } else {
+                // Если нет ссылки, ждем 10 секунд и показываем fallback
                 setTimeout(() => {
                     if (!redirected) {
-                        // Если редирект не произошёл, показываем сообщение о проблеме
-                        countdownElement.style.display = 'none';
-                        messageElement.textContent = "Похоже, приложение не установлено.";
-                        messageElement.classList.add('visible');
-
-                        // Показываем кнопку для скачивания приложения
-                        deviceButtonElement.href = deviceInfo.url;
-                        deviceButtonElement.textContent = `Скачать приложение для ${deviceInfo.type === 'apple' ? '🍏 Apple' : deviceInfo.type === 'android' ? '🤖 Android' : '🖥 Windows'}`;
-                        deviceButtonElement.classList.add('visible');
+                        showFallback();
                     }
-                }, 5000); // Проверка через 5 секунд
-            } else {
-                countdownElement.style.display = 'none';
-                messageElement.textContent = "Некорректная ссылка или отсутствует параметр.";
-                messageElement.classList.add('visible');
-                deviceButtonElement.style.display = 'none';
+                }, 10000);
             }
         }
 
-        // Попытка редиректа сразу при открытии страницы
-        handleRedirect();
+        function showFallback() {
+            countdownElement.style.display = 'none';
+            successMessageElement.style.display = 'none';
+            messageElement.style.display = 'block';
+            deviceButtonsElement.style.display = 'block';
+        }
 
-        // Обратный отсчёт
+        // Запускаем таймер
         const interval = setInterval(() => {
-            count--;
-            if (count > 0) {
-                countdownElement.textContent = count;
-            } else {
+            if (redirected) {
                 clearInterval(interval);
-                countdownElement.style.display = 'none';
-                if (!redirected) {
-                    messageElement.classList.add('visible');
-                    const deviceInfo = detectDevice();
-                    deviceButtonElement.href = deviceInfo.url;
-                    deviceButtonElement.textContent = `Скачать приложение для ${deviceInfo.type === 'apple' ? '🍏 Apple' : deviceInfo.type === 'android' ? '🤖 Android' : '🖥 Windows'}`;
-                    deviceButtonElement.classList.add('visible');
+            } else {
+                count--;
+                if (count > 0) {
+                    countdownElement.textContent = count;
+                } else {
+                    clearInterval(interval);
+                    if (!redirected) {
+                        showFallback();
+                    }
                 }
             }
         }, 1000);
+
+        // Запускаем переадресацию
+        handleRedirect();
     </script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
