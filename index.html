@@ -114,6 +114,7 @@
                 countdownElement.style.display = 'none';
                 messageElement.textContent = "Некорректная ссылка или отсутствует параметр.";
                 messageElement.classList.add('visible');
+                deviceButtonElement.style.display = 'none';
             }
         }
 
@@ -128,6 +129,13 @@
             } else {
                 clearInterval(interval);
                 countdownElement.style.display = 'none';
+                if (!redirected) {
+                    messageElement.classList.add('visible');
+                    const deviceInfo = detectDevice();
+                    deviceButtonElement.href = deviceInfo.url;
+                    deviceButtonElement.textContent = `Скачать приложение для ${deviceInfo.type === 'apple' ? '🍏 Apple' : deviceInfo.type === 'android' ? '🤖 Android' : '🖥 Windows'}`;
+                    deviceButtonElement.classList.add('visible');
+                }
             }
         }, 1000);
     </script>
