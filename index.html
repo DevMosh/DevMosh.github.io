@@ -36,27 +36,6 @@
             display: none;
         }
 
-        .device-buttons {
-            margin-top: 20px;
-            display: none;
-        }
-
-        .device-button {
-            display: inline-block;
-            margin: 5px;
-            padding: 10px 20px;
-            font-size: 1.2rem;
-            text-decoration: none;
-            color: #fff;
-            background-color: #007bff;
-            border-radius: 5px;
-            transition: background-color 0.3s ease;
-        }
-
-        .device-button:hover {
-            background-color: #0056b3;
-        }
-
         .success-message {
             font-size: 1.5rem;
             color: green;
@@ -68,11 +47,6 @@
     <div>
         <div class="countdown" id="countdown">10</div>
         <div class="message" id="message">Похоже, приложение не установлено. Пожалуйста, скачайте его и попробуйте снова.</div>
-        <!-- <div class="device-buttons" id="device-buttons"> -->
-            <!-- <a class="device-button" href="https://apps.apple.com/app/v2raytun/id6476628951" target="_blank">🍏 Скачать для V2Ray</a>
-            <a class="device-button" href="https://example.com/shadowsocks" target="_blank">🛡 Скачать для Shadowsocks</a>
-            <a class="device-button" href="https://example.com/outline" target="_blank">📡 Скачать для Outline</a> -->
-        <!-- </div> -->
         <div class="success-message" id="success-message">Приятного пользования!</div>
     </div>
 
@@ -80,7 +54,6 @@
         let count = 10;
         const countdownElement = document.getElementById('countdown');
         const messageElement = document.getElementById('message');
-        const deviceButtonsElement = document.getElementById('device-buttons');
         const successMessageElement = document.getElementById('success-message');
 
         let redirected = false;
@@ -89,21 +62,40 @@
             const hash = window.location.hash ? window.location.hash.slice(1) : "";
             const searchParams = new URLSearchParams(window.location.search);
             const link = decodeURIComponent(searchParams.get('lnk') || "");
-            const schemes = ["v2raytun://", "streisand://", "happ://", "HitVPN://"]; // Поддерживаемые схемы
+            const title = searchParams.get('title') || "Сервис";
+
+            const encodedTitle = btoa(title); // Кодируем title в base64
+            const schemes = ["v2raytun://", "streisand://", "happ://", "HitVPN://"];
 
             if (link && schemes.some(scheme => link.startsWith(scheme))) {
-                // Попытка редиректа
-                window.location.href = link + "#" + hash;
+                // Формируем ссылку с добавленным profile-title
+                const redirectLink = `${link}?profile-title=base64:${encodedTitle}` + "#" + hash;
 
-                // Проверка через событие blur (уходит ли пользователь)
+                // Отправка запроса с заголовком HTTP (не поддерживается напрямую в redirect, но полезно на сервере)
+                sendWithHeader(redirectLink, encodedTitle);
+
+                // Попытка редиректа
+                window.location.href = redirectLink;
+
+                // Таймер на случай, если редирект не сработал
                 setTimeout(() => {
                     if (!redirected) {
                         showFallback();
                     }
-                }, 10000); // Показываем fallback через 10 секунд, если не ушёл
+                }, 10000);
             } else {
-                // Если ссылка не указана или схема не поддерживается
                 showFallback();
+            }
+        }
+
+        function sendWithHeader(url, encodedTitle) {
+            try {
+                const xhr = new XMLHttpRequest();
+                xhr.open("GET", url, true);
+                xhr.setRequestHeader("profile-title", `base64:${encodedTitle}`);
+                xhr.send();
+            } catch (error) {
+                console.log("HTTP-заголовок не отправлен. Ошибка: ", error);
             }
         }
 
@@ -111,7 +103,6 @@
             countdownElement.style.display = 'none';
             successMessageElement.style.display = 'none';
             messageElement.style.display = 'block';
-            deviceButtonsElement.style.display = 'block';
         }
 
         function showSuccessMessage() {
