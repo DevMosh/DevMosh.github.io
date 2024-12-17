@@ -27,16 +27,13 @@
             50% { opacity: 0.8; transform: scale(1.1); }
             100% { opacity: 1; transform: scale(1); }
         }
-        .message {
+        .message, .success-message {
             font-size: 1.5rem;
             margin-top: 20px;
             display: none;
         }
         .success-message {
-            font-size: 1.5rem;
             color: green;
-            margin-top: 20px;
-            display: none;
         }
     </style>
 </head>
@@ -50,6 +47,7 @@
     <script>
         let count = 10;
         let redirected = false;
+        let timer;
 
         const countdownElement = document.getElementById('countdown');
         const messageElement = document.getElementById('message');
@@ -61,29 +59,29 @@
 
             if (link && link.startsWith("happ://")) {
                 console.log("Redirecting to:", link);
-
-                // Переадресация на приложение
                 window.location.href = link;
 
-                // Ждем 10 секунд и показываем fallback, если редирект не удался
-                setTimeout(() => {
+                // Ждем 10 секунд, если редирект не произошел
+                timer = setTimeout(() => {
                     if (!redirected) {
                         showFallback();
                     }
                 }, 10000);
             } else {
-                // Если параметр отсутствует или неправильный
+                // Некорректный параметр lnk
                 showFallback();
             }
         }
 
         function showFallback() {
+            clearInterval(timer); // Останавливаем таймер
             countdownElement.style.display = 'none';
             successMessageElement.style.display = 'none';
             messageElement.style.display = 'block';
         }
 
         function showSuccessMessage() {
+            clearTimeout(timer); // Останавливаем таймер
             countdownElement.style.display = 'none';
             successMessageElement.style.display = 'block';
         }
@@ -95,13 +93,10 @@
                 countdownElement.textContent = count;
             } else {
                 clearInterval(interval);
-                if (!redirected) {
-                    showFallback();
-                }
             }
         }, 1000);
 
-        // Проверка успешного редиректа через событие blur
+        // Обрабатываем событие blur (редирект сработал)
         window.addEventListener("blur", () => {
             redirected = true;
             showSuccessMessage();
