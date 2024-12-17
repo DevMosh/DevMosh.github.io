@@ -89,7 +89,7 @@
             const hash = window.location.hash ? window.location.hash.slice(1) : "";
             const searchParams = new URLSearchParams(window.location.search);
             const link = decodeURIComponent(searchParams.get('lnk') || "");
-            const schemes = ["v2raytun://", "streisand://", "Happ%20-%20Proxy%20Utility://", "HitVPN://"]; // Поддерживаемые схемы
+            const schemes = ["v2raytun://", "streisand://", "happ://", "HitVPN://"]; // Поддерживаемые схемы
 
             if (link && schemes.some(scheme => link.startsWith(scheme))) {
                 // Попытка редиректа
