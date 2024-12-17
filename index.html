@@ -30,16 +30,14 @@
             100% { opacity: 1; transform: scale(1); }
         }
 
-        .message {
+        .message, .success-message {
             font-size: 1.5rem;
             margin-top: 20px;
             display: none;
         }
 
         .success-message {
-            font-size: 1.5rem;
             color: green;
-            display: none;
         }
     </style>
 </head>
@@ -61,23 +59,24 @@
         function handleRedirect() {
             const hash = window.location.hash ? window.location.hash.slice(1) : "";
             const searchParams = new URLSearchParams(window.location.search);
+            
             const link = decodeURIComponent(searchParams.get('lnk') || "");
-            const title = searchParams.get('title') || "Сервис";
+            const title = decodeURIComponent(searchParams.get('title') || "Default Service");
+            const supportUrl = decodeURIComponent(searchParams.get('support-url') || "");
 
-            const encodedTitle = btoa(title); // Кодируем title в base64
+            const encodedTitle = btoa(title); // Кодирование title в Base64
+            const encodedSupportUrl = btoa(supportUrl); // Кодирование support-url в Base64
+
             const schemes = ["v2raytun://", "streisand://", "happ://", "HitVPN://"];
 
             if (link && schemes.some(scheme => link.startsWith(scheme))) {
-                // Формируем ссылку с добавленным profile-title
-                const redirectLink = `${link}?profile-title=base64:${encodedTitle}` + "#" + hash;
+                // Добавляем закодированные параметры в URL
+                const redirectLink = `${link}?profile-title=base64:${encodedTitle}&support-url=base64:${encodedSupportUrl}${hash ? '#' + hash : ''}`;
+                console.log("Redirecting to:", redirectLink);
 
-                // Отправка запроса с заголовком HTTP (не поддерживается напрямую в redirect, но полезно на сервере)
-                sendWithHeader(redirectLink, encodedTitle);
-
-                // Попытка редиректа
                 window.location.href = redirectLink;
 
-                // Таймер на случай, если редирект не сработал
+                // Таймер на случай неудачного редиректа
                 setTimeout(() => {
                     if (!redirected) {
                         showFallback();
@@ -85,17 +84,6 @@
                 }, 10000);
             } else {
                 showFallback();
-            }
-        }
-
-        function sendWithHeader(url, encodedTitle) {
-            try {
-                const xhr = new XMLHttpRequest();
-                xhr.open("GET", url, true);
-                xhr.setRequestHeader("profile-title", `base64:${encodedTitle}`);
-                xhr.send();
-            } catch (error) {
-                console.log("HTTP-заголовок не отправлен. Ошибка: ", error);
             }
         }
 
@@ -133,7 +121,7 @@
             showSuccessMessage();
         });
 
-        // Запуск переадресации
+        // Запуск редиректа
         handleRedirect();
     </script>
 </body>
