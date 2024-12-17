@@ -22,13 +22,21 @@
             font-weight: bold;
             animation: fadeInOut 1s linear infinite;
         }
-        .message, .success-message {
+        @keyframes fadeInOut {
+            0% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.8; transform: scale(1.1); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+        .message {
             font-size: 1.5rem;
             margin-top: 20px;
             display: none;
         }
         .success-message {
+            font-size: 1.5rem;
             color: green;
+            margin-top: 20px;
+            display: none;
         }
     </style>
 </head>
@@ -41,31 +49,30 @@
 
     <script>
         let count = 10;
+        let redirected = false;
+
         const countdownElement = document.getElementById('countdown');
         const messageElement = document.getElementById('message');
         const successMessageElement = document.getElementById('success-message');
-        let redirected = false;
 
         function handleRedirect() {
             const searchParams = new URLSearchParams(window.location.search);
-            const link = searchParams.get('lnk') || ""; // Берём ссылку из параметра lnk
+            const link = searchParams.get('lnk');
 
-            if (link) {
-                try {
-                    const encodedLink = encodeURI(link); // Гарантируем корректность спецсимволов
-                    console.log("Redirecting to:", encodedLink);
-                    window.location.href = encodedLink;
+            if (link && link.startsWith("happ://")) {
+                console.log("Redirecting to:", link);
 
-                    setTimeout(() => {
-                        if (!redirected) {
-                            showFallback();
-                        }
-                    }, 10000); // Показываем fallback через 10 секунд
-                } catch (e) {
-                    console.error("Invalid URL:", e);
-                    showFallback();
-                }
+                // Переадресация на приложение
+                window.location.href = link;
+
+                // Ждем 10 секунд и показываем fallback, если редирект не удался
+                setTimeout(() => {
+                    if (!redirected) {
+                        showFallback();
+                    }
+                }, 10000);
             } else {
+                // Если параметр отсутствует или неправильный
                 showFallback();
             }
         }
@@ -83,22 +90,18 @@
 
         // Таймер обратного отсчёта
         const interval = setInterval(() => {
-            if (redirected) {
-                clearInterval(interval);
+            count--;
+            if (count > 0) {
+                countdownElement.textContent = count;
             } else {
-                count--;
-                if (count > 0) {
-                    countdownElement.textContent = count;
-                } else {
-                    clearInterval(interval);
-                    if (!redirected) {
-                        showFallback();
-                    }
+                clearInterval(interval);
+                if (!redirected) {
+                    showFallback();
                 }
             }
         }, 1000);
 
-        // Проверка успешности редиректа
+        // Проверка успешного редиректа через событие blur
         window.addEventListener("blur", () => {
             redirected = true;
             showSuccessMessage();
