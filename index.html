@@ -94,19 +94,20 @@
 
             if (link) {
                 try {
-                    link = decodeURIComponent(link);
+                    // Выполняем двойное декодирование
+                    const decodedLink = decodeURIComponent(decodeURIComponent(link));
 
                     // Проверяем, что ссылка поддерживается
-                    if (supportedSchemes.some(scheme => link.startsWith(scheme))) {
-                        console.log("Redirecting to:", link);
-                        window.location.href = link;
+                    if (supportedSchemes.some(scheme => decodedLink.startsWith(scheme))) {
+                        console.log("Redirecting to:", decodedLink);
+                        window.location.href = decodedLink;
 
                         // Таймер на fallback через 10 секунд
                         setTimeout(() => {
                             if (!redirected) showFallback();
                         }, 10000);
                     } else {
-                        console.error("Unsupported scheme:", link);
+                        console.error("Unsupported scheme:", decodedLink);
                         showFallback();
                     }
                 } catch (e) {
