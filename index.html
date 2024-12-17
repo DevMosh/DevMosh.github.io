@@ -30,14 +30,37 @@
             100% { opacity: 1; transform: scale(1); }
         }
 
-        .message, .success-message {
+        .message {
             font-size: 1.5rem;
             margin-top: 20px;
             display: none;
         }
 
+        .device-buttons {
+            margin-top: 20px;
+            display: none;
+        }
+
+        .device-button {
+            display: inline-block;
+            margin: 5px;
+            padding: 10px 20px;
+            font-size: 1.2rem;
+            text-decoration: none;
+            color: #fff;
+            background-color: #007bff;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        .device-button:hover {
+            background-color: #0056b3;
+        }
+
         .success-message {
+            font-size: 1.5rem;
             color: green;
+            display: none;
         }
     </style>
 </head>
@@ -45,6 +68,11 @@
     <div>
         <div class="countdown" id="countdown">10</div>
         <div class="message" id="message">Похоже, приложение не установлено. Пожалуйста, скачайте его и попробуйте снова.</div>
+        <!-- <div class="device-buttons" id="device-buttons"> -->
+            <!-- <a class="device-button" href="https://apps.apple.com/app/v2raytun/id6476628951" target="_blank">🍏 Скачать для V2Ray</a>
+            <a class="device-button" href="https://example.com/shadowsocks" target="_blank">🛡 Скачать для Shadowsocks</a>
+            <a class="device-button" href="https://example.com/outline" target="_blank">📡 Скачать для Outline</a> -->
+        <!-- </div> -->
         <div class="success-message" id="success-message">Приятного пользования!</div>
     </div>
 
@@ -52,6 +80,7 @@
         let count = 10;
         const countdownElement = document.getElementById('countdown');
         const messageElement = document.getElementById('message');
+        const deviceButtonsElement = document.getElementById('device-buttons');
         const successMessageElement = document.getElementById('success-message');
 
         let redirected = false;
@@ -59,30 +88,21 @@
         function handleRedirect() {
             const hash = window.location.hash ? window.location.hash.slice(1) : "";
             const searchParams = new URLSearchParams(window.location.search);
-            
             const link = decodeURIComponent(searchParams.get('lnk') || "");
-            const title = decodeURIComponent(searchParams.get('title') || "Default Service");
-            const supportUrl = decodeURIComponent(searchParams.get('support-url') || "");
-
-            const encodedTitle = btoa(title); // Кодирование title в Base64
-            const encodedSupportUrl = btoa(supportUrl); // Кодирование support-url в Base64
-
-            const schemes = ["v2raytun://", "streisand://", "happ://", "HitVPN://"];
+            const schemes = ["v2raytun://", "streisand://", "happ://", "HitVPN://"]; // Поддерживаемые схемы
 
             if (link && schemes.some(scheme => link.startsWith(scheme))) {
-                // Добавляем закодированные параметры в URL
-                const redirectLink = `${link}?profile-title=base64:${encodedTitle}&support-url=base64:${encodedSupportUrl}${hash ? '#' + hash : ''}`;
-                console.log("Redirecting to:", redirectLink);
+                // Попытка редиректа
+                window.location.href = link + "#" + hash;
 
-                window.location.href = redirectLink;
-
-                // Таймер на случай неудачного редиректа
+                // Проверка через событие blur (уходит ли пользователь)
                 setTimeout(() => {
                     if (!redirected) {
                         showFallback();
                     }
-                }, 10000);
+                }, 10000); // Показываем fallback через 10 секунд, если не ушёл
             } else {
+                // Если ссылка не указана или схема не поддерживается
                 showFallback();
             }
         }
@@ -91,6 +111,7 @@
             countdownElement.style.display = 'none';
             successMessageElement.style.display = 'none';
             messageElement.style.display = 'block';
+            deviceButtonsElement.style.display = 'block';
         }
 
         function showSuccessMessage() {
@@ -121,7 +142,7 @@
             showSuccessMessage();
         });
 
-        // Запуск редиректа
+        // Запуск переадресации
         handleRedirect();
     </script>
 </body>
